@@ -1,0 +1,20 @@
+%macro do_action(mvDSCondition);
+    %local dsid rc;
+    %let dsid=%sysfunc(open(&mvDSCondition(where=(^missing(rule_condition))), I));
+
+    %if &dsid>0 %then %do;
+        DO;
+        %syscall set(dsid);
+        %let rc = %sysfunc(fetch(&dsid));
+        %do %while(&rc=0);
+            %let rule_condition=&rule_condition;
+            %let rule_action=&rule_action;
+            if &rule_condition. then do;
+                &rule_action.;
+            end;
+            %let rc = %sysfunc(fetch(&dsid));
+        %end;
+        %let rc=%sysfunc(close(&dsid));
+        END;
+    %end;
+%mend;

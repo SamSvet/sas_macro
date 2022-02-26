@@ -1,0 +1,15 @@
+%macro do_informat(mvDSName, columnTemplate, columnInformat, columnFormat);
+    %let dsid=%sysfunc(open(&mvDSName,i));
+    %if &dsid>0 %then %do;
+        %do _varlist_N=1 %to %sysfunc(attrn(&dsid, nvars));
+            %let mvarname=%sysfunc(varname(&dsid, &_varlist_N));
+            %if %sysfunc(prxmatch(&columnTemplate, &mvarname)) and %sysfunc(vartype(&dsid, &_varlist_N)) = C %then %do;
+                format __&mvarname._ &columnFormat;
+                rename __&mvarname._=&mvarname;
+                __&mvarname._=input(&mvarname, &columnInformat);
+                drop &mvarname;
+            %end;
+        %end;
+    %end;
+    %let rc=%sysfunc(close(&dsid));
+%mend;

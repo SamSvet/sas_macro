@@ -1,0 +1,17 @@
+%macro do_callsymputx(tablename);
+    %local varlist varnum;
+    %let varlist=;
+    %let dsid=%sysfunc(open(&tablename,i));
+    %if &dsid>0 %then %do;
+        %let varnum = %sysfunc(attrn(&dsid, nvars));
+        %do varlistN=1 %to &varnum.;
+            %let varlist=&varlist %sysfunc(varname(&dsid, &varlistN));
+        %end;
+        input &varlist ;
+        %do varlistN=1 %to &varnum.;
+            %let curvarname = %sysfunc(varname(&dsid, &varlistN));
+            call symputx("&curvarname",&curvarname);
+        %end;
+        %let rc=%sysfunc(close(&dsid));
+    %end;
+%mend;

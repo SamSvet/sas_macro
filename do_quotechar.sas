@@ -1,0 +1,27 @@
+%macro do_quotechar(mvDSName);
+    %let dsid=%sysfunc(open(&mvDSName,i));
+    %let &sysmacroname._fmt=;
+    %if &dsid>0 %then %do;
+        %do _varlist_N=1 %to %sysfunc(attrn(&dsid, nvars));
+            %let mvarname=%sysfunc(varname(&dsid, &_varlist_N));
+            %if ( %sysfunc(vartype(&dsid, &_varlist_N)) = C ) %then %do;
+                length __&mvarname._ $%eval(%sysfunc(varlen(&dsid,&_varlist_N))+2);
+                __&mvarname._=cats('"', &mvarname, '"');
+                rename __&mvarname._=&mvarname;
+                drop &mvarname;
+            %end;
+
+            %else %do;
+                length __&mvarname._ $32;
+                rename __&mvarname._=&mvarname;
+                %let &sysmacroname._fmt=%sysfunc(coalescec(%sysfunc(varfmt(&dsid, &_varlist_N)), best. ));
+                %if %index(%sysfunc(varfmt(&dsid, &_varlist_N)), DATETIME) %then %do;
+                    %let &sysmacroname._fmt=ICCdt.;
+                %end;
+                __&mvarname._=cats('"', put(&mvarname, &&&sysmacroname._fmt), '"');
+                drop &mvarname;
+            %end;
+        %end;
+    %end;
+    %let rc=%sysfunc(close(&dsid));
+%mend;

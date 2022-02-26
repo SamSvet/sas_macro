@@ -1,0 +1,16 @@
+%macro do_precode(mvDSPrecode);
+    %local dsid rc;
+    %let dsid=%sysfunc(open(&mvDSPrecode(where=(^missing(precode))), IS));
+    %if &dsid>0 %then %do;
+        DO ;
+        %syscall set(dsid);
+        %let rc = %sysfunc(fetch(&dsid));
+        %do %while(&rc=0);
+            %let precode=&precode;
+            &precode.;
+            %let rc = %sysfunc(fetch(&dsid));
+        %end;
+        %let rc=%sysfunc(close(&dsid));
+        END;
+    %end;
+%mend;

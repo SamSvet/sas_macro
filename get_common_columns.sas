@@ -1,0 +1,28 @@
+%macro get_common_columns(mFirstTable, mSecondTable, outputData);
+    %global _RC_ _RS_;
+    %let mname=&sysmacroname;
+    %clearerr;
+    data &mname._tpl(keep=varname) &mname._exp(keep=varname);
+        ARRAY column_exp{%attrntype(&mFirstTable, type=NVARS)} $32 (%unquote("%upcase(%qsysfunc(tranwrd(%varlist(&mFirstTable), %str( ), %str(%" %")))")));
+        ARRAY column_tpl{%attrntype(&mSecondTable, type=NVARS)} $32 (%unquote("%upcase(%qsysfunc(tranwrd(%varlist(&mSecondTable), %str( ), %str(%" %")))")));
+        call sortn(of column_tpl{*});
+        do i=1 to dim(column_tpl);
+            varname=column_tpl[i];
+            output &mname._tpl;
+        end;
+        call sortn(of column_exp{*});
+        do i=1 to dim(column_exp);
+            varname=column_exp[i];
+            output &mname._exp;
+        end;
+    run;
+
+    %checkerr(&mname: Error sorting columns);
+    %if &_RC_ %then %return;
+    data &outputData;
+        merge &mname._tpl(in=tpl) &mname._exp(in=exp) end=eof; by varname;
+        if tpl and exp;
+    run;
+    %checkerr(&mname: Error merging common columns);
+    %if &_RC_ %then %return;
+%mend;
