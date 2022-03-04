@@ -1,5 +1,3 @@
-options mautosource insert=(sasautos="/your/path/to/macro");
-
 /*
 Variable list of a specified data set, e.g. SASHELP.CLASS
 Space is a default delimiter
@@ -24,7 +22,8 @@ sort and varlist belong to inline macro type
 This means that you can use them inside data step for example
 */
 data WORK.RESULT;
-length varlist $1024;
+length varlist varlist_sort $1024;
 set SASHELP.CLASS;
 varlist="%varlist(SASHELP.CLASS)";
+varlist_sort="%sort(%varlist(SASHELP.CLASS))";
 run;
