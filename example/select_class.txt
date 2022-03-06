@@ -1,0 +1,2 @@
+select * from sashelp.class
+where age>&filterAge
