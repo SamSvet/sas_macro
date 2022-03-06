@@ -1,0 +1,15 @@
+%macro do_rename(mvDSName,mvSrcName,mvTrgName);
+    %local dsid rc;
+    %let dsid=%sysfunc(open(&mvDSName, IS));
+    %syscall set(dsid);
+    %let rc = %sysfunc(fetch(&dsid));
+    %do %while(&rc=0);
+        %let src_name=&src_name;
+        %let trg_name=&trg_name;
+        if &mvSrcName="&src_name" then do;
+            call symputx("&trg_name", &mvTrgName);
+        end;
+        %let rc = %sysfunc(fetch(&dsid));
+    %end;
+    %let rc=%sysfunc(close(&dsid));
+%mend;
