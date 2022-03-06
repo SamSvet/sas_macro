@@ -15,3 +15,19 @@ Alternatively you can [include](https://documentation.sas.com/doc/en/pgmsascdc/9
 ```sas
 %include "/your/path/to/macro/*";
 ```
+
+## Details
+Macros whose name starts with _do\__ belong to _datastep_ macros, i.e. generate code and apply inside data step.
+[*do_setflag.sas*](macro/do_setflag.sas), [*do_setflag_array.sas*](macro/do_setflag_array.sas), [*do_sametype.sas*](macro/do_sametype.sas) I used in a [SAS_FileUploader](https://github.com/SamSvet/SAS_FileUploader) project.
+
+Some macros return a value and might be used inside sas macro statements, so they are called _inline_.
+```sas
+data varlist;
+length varlist $1024;
+varlist="%varlist(sashelp.class)"; output;
+varlist="%varlist(sashelp.cars)"; output;
+run;
+%put %sort(12 3 7 9 4);
+```
+This group includes [*varlist.sas*](macro/varlist.sas), [*attrntype.sas*](macro/attrntype.sas), [*sort.sas*](macro/sort.sas), [*intersection.sas*](macro/intersection.sas).
+
